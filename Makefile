@@ -1,23 +1,25 @@
-.PHONY: all lib_static lib_dynamic client_static client_dynamic clean distclean
+PREFIX = /usr/local
+BINDIR = $(PREFIX)/bin
+MANDIR = $(PREFIX)/share/man
 
-all: lib_static lib_dynamic client_static client_dynamic
+.PHONY: all install uninstall clean
 
-lib_static:
-	$(MAKE) -C lib static
-
-lib_dynamic:
-	$(MAKE) -C lib dynamic
-
-client_static:
-	$(MAKE) -C src client_static
+# This assumes you already have rules for client_dynamic
+all: client_dynamic
 
 client_dynamic:
 	$(MAKE) -C src client_dynamic
 
+install: all
+	install -d $(BINDIR)
+	install -m 755 bin/client_dynamic $(BINDIR)/client
+	install -d $(MANDIR)/man1
+	install -m 644 man/man1/client.1 $(MANDIR)/man1/client.1
+
+uninstall:
+	rm -f $(BINDIR)/client
+	rm -f $(MANDIR)/man1/client.1
+
 clean:
-	$(MAKE) -C lib clean
 	$(MAKE) -C src clean
-
-distclean: clean
-	-rm -rf obj/* bin/*
-
+	-rm -f bin/client_dynamic
