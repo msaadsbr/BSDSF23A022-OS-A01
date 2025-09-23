@@ -1,20 +1,19 @@
-# src/Makefile
-CC = gcc
-CFLAGS = -Wall -I../include
-
 OBJ_DIR = ../obj
 BIN_DIR = ../bin
 LIB_DIR = ../lib
-TARGET = $(BIN_DIR)/client_static
 
 MAIN_SRC = main.c
 MAIN_OBJ = $(OBJ_DIR)/main.o
 
-LIBS = -L$(LIB_DIR) -lmyutils
+STATIC_LIB = $(LIB_DIR)/libmyutils.a
+DYNAMIC_LIB = $(LIB_DIR)/libmyutils.so
 
-.PHONY: all client_static clean
+STATIC_TARGET = $(BIN_DIR)/client_static
+DYNAMIC_TARGET = $(BIN_DIR)/client_dynamic
 
-all: client_static
+.PHONY: all client_static client_dynamic clean
+
+all: client_static client_dynamic
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
@@ -22,13 +21,14 @@ $(OBJ_DIR):
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
-# compile main.c into obj/main.o
 $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# link main.o with static library to produce client_static
-client_static: $(MAIN_OBJ) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN_OBJ) $(LIBS)
+client_static: $(MAIN_OBJ) $(STATIC_LIB) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(STATIC_TARGET) $(MAIN_OBJ) -L$(LIB_DIR) -lmyutils
+
+client_dynamic: $(MAIN_OBJ) $(DYNAMIC_LIB) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(DYNAMIC_TARGET) $(MAIN_OBJ) -L$(LIB_DIR) -lmyutils
 
 clean:
-	-rm -f $(MAIN_OBJ) $(TARGET)
+	-rm -f $(MAIN_OBJ) $(STATIC_TARGET) $(DYNAMIC_TARGET)

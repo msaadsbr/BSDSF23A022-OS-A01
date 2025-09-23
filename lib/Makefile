@@ -1,19 +1,20 @@
 # lib/Makefile
 CC = gcc
-CFLAGS = -Wall -I../include
+CFLAGS = -Wall -I../include -fPIC
 
 SRC_DIR = ../src
 OBJ_DIR = ../obj
 LIB_DIR = ../lib
-LIBNAME = libmyutils.a
 
-# source files that should go into the static library
 SRCS = mystrfunctions.c myfilefunctions.c
 OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-.PHONY: all clean
+STATIC_LIB = $(LIB_DIR)/libmyutils.a
+DYNAMIC_LIB = $(LIB_DIR)/libmyutils.so
 
-all: $(LIB_DIR)/$(LIBNAME)
+.PHONY: all static dynamic clean
+
+all: static dynamic
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
@@ -21,17 +22,17 @@ $(OBJ_DIR):
 $(LIB_DIR):
 	mkdir -p $(LIB_DIR)
 
-# compile each src file into obj/
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# create static library from objects
-$(LIB_DIR)/$(LIBNAME): $(OBJS) | $(LIB_DIR)
-	@echo "Archiving $@ ..."
+static: $(STATIC_LIB)
+$(STATIC_LIB): $(OBJS) | $(LIB_DIR)
 	ar rcs $@ $(OBJS)
-	# ranlib ensures archive index (safe to call)
 	ranlib $@
 
+dynamic: $(DYNAMIC_LIB)
+$(DYNAMIC_LIB): $(OBJS) | $(LIB_DIR)
+	$(CC) -shared -o $@ $(OBJS)
+
 clean:
-	-rm -f $(OBJS)
-	-rm -f $(LIB_DIR)/$(LIBNAME)
+	-rm -f $(OBJ_DIR)/*.o $(STATIC_LIB) $(DYNAMIC_LIB)
