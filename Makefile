@@ -1,25 +1,32 @@
-PREFIX = /usr/local
-BINDIR = $(PREFIX)/bin
-MANDIR = $(PREFIX)/share/man
+# Compiler and flags
+CC = gcc
+CFLAGS = -Wall -Iinclude
 
-.PHONY: all install uninstall clean
+# Directories
+SRC_DIR = src
+OBJ_DIR = obj
+BIN_DIR = bin
 
-# This assumes you already have rules for client_dynamic
-all: client_dynamic
+# Source and object files
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/mystrfunctions.c $(SRC_DIR)/myfilefunctions.c
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-client_dynamic:
-	$(MAKE) -C src client_dynamic
+# Output binary
+TARGET = $(BIN_DIR)/client
 
-install: all
-	install -d $(BINDIR)
-	install -m 755 bin/client_dynamic $(BINDIR)/client
-	install -d $(MANDIR)/man1
-	install -m 644 man/man1/client.1 $(MANDIR)/man1/client.1
+# Default target
+all: $(TARGET)
 
-uninstall:
-	rm -f $(BINDIR)/client
-	rm -f $(MANDIR)/man1/client.1
+# Link rule
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
+# Compile rule
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean up
 clean:
-	$(MAKE) -C src clean
-	-rm -f bin/client_dynamic
+	rm -f $(OBJ_DIR)/*.o $(TARGET)
+
+.PHONY: all clean
