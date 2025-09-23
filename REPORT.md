@@ -1,10 +1,3 @@
-## Feature 1 — Project Scaffolding & Version Control
-- Repository name: BSDSF23A020-OS-A20
-- GitHub URL: https://github.com/Uzair3112/BSDSF23A020-OS-A20.git
-- Date created: 21/09/25
-- Files and directories created: src/, include/, lib/, bin/, obj/, REPORT.md
-
-
 ## Feature-2: Multi-file compilation (multifile-build branch)
 
 **Q1. Explain the linking rule in this part's Makefile: $(TARGET): $(OBJECTS). How does it differ from a Makefile rule that links against a library?**
